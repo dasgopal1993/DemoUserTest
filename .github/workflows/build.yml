@@ -1,0 +1,33 @@
+name: SonarQube Scan
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sonarqube:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+
+      - name: Build and Test
+        run: mvn clean install
+
+      - name: SonarQube Scan
+        run: |
+          set -e  # Exit on error
+          set -x  # Enable debugging
+          mvn sonar:sonar \
+            -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }} \
+            -Dsonar.host.url=http://localhost:9009/ \
+            -Dsonar.projectKey=Test \
+            -Dsonar.projectName="Test"
